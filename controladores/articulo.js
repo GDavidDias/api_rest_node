@@ -68,13 +68,31 @@ const crear = async (req,res)=>{
 };
 
 const listar = async(req,res)=>{
+
+    
     try{
+        let consulta = Articulo.find({});
+        if (req.params.ultimos) {
+            const ult = parseInt(req.params.ultimos);
+            consulta = consulta.limit(ult);
+        }
+        consulta = await consulta.sort({ fecha: -1 }).exec();
+        console.log(consulta);
         //?Busca todos los articulos en la BD
-        let consulta = await Articulo.find().exec();
+        //?los ordena por fecha y limita los resultados si viene el parametro ultimos
+        // if(req.params.ultimos){
+        //     consulta = await Articulo.find().sort({fecha:-1}).limit(req.params.ultimos).exec();
+        // }else{
+        //     consulta = await Articulo.find().sort({fecha:-1}).exec();
+        // }
+
+
         
         //?Devuelve lista de articulos en formato JSON
         return res.status(200).send({
             status: "success",
+            parametro: req.params.ultimos,
+            cantidad: consulta.length,
             consulta,
             mensaje: "Articulos listados con exito"
         })
