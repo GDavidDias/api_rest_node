@@ -10,6 +10,7 @@ router.get("/cursos", ArticuloController.curso);
 router.post("/crear", ArticuloController.crear);
 router.get("/articulos/:ultimos?", ArticuloController.listar);
 router.get("/articulo/:id", ArticuloController.uno);
+router.delete("/articulo/:id", ArticuloController.borrar);
 
 
 

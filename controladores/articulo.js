@@ -134,10 +134,42 @@ const uno = async(req,res)=>{
 
 };
 
+
+const borrar = async(req,res)=>{
+
+    let {id} = req.params;
+
+    try{
+        let articulo = await Articulo.findOneAndDelete({_id: id});
+
+        if(!articulo){
+            return res.status(404).json({
+                status: "error",
+                mensaje: "Error al borrar, articulo no existe"
+            });
+        }
+
+
+        return res.status(209).json({
+            status: "success",
+            articulo: articulo,
+            mensaje: "metodo de borrar"
+        })
+
+    }catch(error){
+        return res.status(404).json({
+            status: "error",
+            mensaje: error.message
+        })
+    }
+
+};
+
 module.exports = {
     prueba,
     curso,
     crear,
     listar,
-    uno
+    uno,
+    borrar
 }
