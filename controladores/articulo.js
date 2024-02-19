@@ -71,21 +71,17 @@ const listar = async(req,res)=>{
 
     
     try{
+        //?Busca todos los articulos en la BD
         let consulta = Articulo.find({});
+
+        //?Si viene el parametro ultimos, se limita el resultado
         if (req.params.ultimos) {
             const ult = parseInt(req.params.ultimos);
             consulta = consulta.limit(ult);
         }
+        //?los ordena por fecha
         consulta = await consulta.sort({ fecha: -1 }).exec();
         console.log(consulta);
-        //?Busca todos los articulos en la BD
-        //?los ordena por fecha y limita los resultados si viene el parametro ultimos
-        // if(req.params.ultimos){
-        //     consulta = await Articulo.find().sort({fecha:-1}).limit(req.params.ultimos).exec();
-        // }else{
-        //     consulta = await Articulo.find().sort({fecha:-1}).exec();
-        // }
-
 
         
         //?Devuelve lista de articulos en formato JSON
@@ -106,9 +102,42 @@ const listar = async(req,res)=>{
 
 };
 
+const uno = async(req,res)=>{
+    //Recoger un id por la url
+    let {id} = req.params;
+    //console.log(id)
+
+    try{
+        //Buscar el articulo
+        let articulo = await Articulo.findById(id)
+
+        //Si no existe deveolver error
+        if(!articulo){
+            return res.status(404).json({
+                status: "error",
+                mensaje: "no se han encontrado el articulo"
+            });
+        }
+        
+        //Devolver resultado
+        return res.status(200).json({
+            status:"success",
+            articulo
+        })
+
+    }catch(error){
+        return res.status(404).json({
+            status: "error",
+            mensaje: error.message
+        })
+    }
+
+};
+
 module.exports = {
     prueba,
     curso,
     crear,
-    listar
+    listar,
+    uno
 }
