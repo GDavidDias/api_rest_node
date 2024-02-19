@@ -23,14 +23,13 @@ const curso = (req,res)=>{
     ])
 };
 
-const crear = (req,res)=>{
+const crear = async (req,res)=>{
 
-    //Recoger los parametros por POST a guardar
+    //?Recoger los parametros por POST a guardar
     const parametros = req.body;
-    
 
-    //Valdar datos
     try{
+        //?Validar datos
         let validar_titulo = !validator.isEmpty(parametros.titulo) &&
                             validator.isLength(parametros.titulo, {min:5, max:undefined});
 
@@ -40,51 +39,58 @@ const crear = (req,res)=>{
             throw new Error ("No se ha validado la informacion");
         }
 
+        //?Crear instancia del objeto a guardar
+        const articulo = new Articulo(parametros);
+    
+        //Asignar valores a objeto basado en el modelo (manual o automatico)
+        //articulo.titulo = parametros.titulo
+    
+    
+        //?Guardar el articulo en la BD
+        
+        await articulo.save().then((articuloGuardado)=>{
+    
+            //?Devolver resutlado
+            return res.status(200).json({
+                status: "success",
+                articulo: articuloGuardado,
+                mensaje: "Articulo guardado con exito"
+            })
+        });
+
     }catch(error){
         return res.status(400).json({
             status: "error",
-            mensaje: "Faltan datos por enviar"
+            mensaje: error.message
         })
     }
 
-    //Crear el objeto a guardar
-    const articulo = new Articulo(parametros);
+};
 
-    //Asignar valores a objeto basado en el modelo (manual o automatico)
-    //articulo.titulo = parametros.titulo
-
-
-    //Guardar el articulo en la BD
-    // articulo.save((error,articuloGuardado)=>{
-    //     if(error || !articuloGuardado){
-    //         return res.status(400).json({
-    //             status: "error",
-    //             mensaje: "No se ha guardado el articulo"
-    //         });
-    //     }
-
-    //     //Devolver resutlado
-    //     return res.status(200).json({
-    //         status: "success",
-    //         articulo: articuloGuardado,
-    //         mensaje: "Articulo guardado con exito"
-    //     })
-    // });
-    
-    articulo.save().then((articuloGuardado)=>{
-
-        //Devolver resutlado
-        return res.status(200).json({
+const listar = async(req,res)=>{
+    try{
+        //?Busca todos los articulos en la BD
+        let consulta = await Articulo.find().exec();
+        
+        //?Devuelve lista de articulos en formato JSON
+        return res.status(200).send({
             status: "success",
-            articulo: articuloGuardado,
-            mensaje: "Articulo guardado con exito"
+            consulta,
+            mensaje: "Articulos listados con exito"
         })
-    });
 
-}
+    }catch(error){
+        return res.status(404).json({
+            status: "error",
+            mensaje: error.message
+        })
+    }
+
+};
 
 module.exports = {
     prueba,
     curso,
-    crear
+    crear,
+    listar
 }

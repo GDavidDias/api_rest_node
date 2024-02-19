@@ -8,6 +8,8 @@ router.get("/cursos", ArticuloController.curso);
 
 //Ruta util
 router.post("/crear", ArticuloController.crear);
+router.get("/articulos", ArticuloController.listar);
+
 
 
 module.exports = router;
