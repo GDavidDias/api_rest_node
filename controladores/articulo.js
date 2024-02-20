@@ -1,4 +1,6 @@
 const {validarArticulo} = require("../helpers/validar");
+const fs = require("fs");
+const path = require("path");
 const Articulo = require("../modelos/Articulos");
 
 
@@ -213,6 +215,84 @@ const editar = async(req, res)=>{
 };
 
 
+const subir = async(req,res)=>{
+
+    //Configurar multer
+
+    //Recoger el fichero de imagen subido
+    if(!req.file && !req.files){
+        return res.status(404).json({
+            status: "error",
+            mensaje: "Peticion Invalida"
+        })
+    };
+
+    //Nombre del archivo
+    let archivo = req.file.originalname;
+
+    //Extension del archivo
+    let archivo_split = archivo.split("\.");
+    let archivo_extension = archivo_split[1];
+
+    //Comprobar extension correcta
+    if (archivo_extension != "jpeg" && archivo_extension != "png" && 
+        archivo_extension != "jpg" && archivo_extension != "gif"){
+            //Si no cumple con la extension de una imagen no lo guardo y borro archivo y doy respuesta
+            fs.unlink(req.file.path, (error)=>{
+                return res.status(400).json({
+                    status: "error",
+                    mensaje: "El archivo no es una imagen"
+                })
+            })
+
+    }else{
+        //Si todo va bien, actualizar el articulo
+        let articuloId = req.params.id;
+
+        //Buscar y actualizar articulo
+        let articulo_actualizado = await Articulo.findOneAndUpdate({_id : articuloId}, {imagen: req.file.filename}, {new:true});
+
+        if(!articulo_actualizado){
+            return res.status(404).json({
+                status: "error",
+                mensaje: "No se actualizo el articulo"
+            })
+        };
+
+        //devolver respuesta
+        return res.status(200).json({
+            status: "success",
+            articulo: articulo_actualizado,
+            mensaje: "Articulo actualizado correctamente",
+            fichero: req.file
+        });
+
+    }
+};
+
+
+const imagen = (req,res)=>{
+
+    let fichero = req.params.fichero;
+    let ruta_fisica = "./imagenes/articulos/"+fichero;
+
+    fs.stat(ruta_fisica,(error, existe)=>{
+        if (existe) {
+            return res.sendFile(path.resolve(ruta_fisica))
+        }else{
+            return res.status(404).json({
+                status: "error",
+                mensaje: "La imagen no existe",
+                existe,
+                fichero,
+                ruta_fisica
+            })
+        }
+    })
+
+};
+
+
 module.exports = {
     prueba,
     curso,
@@ -220,5 +300,7 @@ module.exports = {
     listar,
     uno,
     borrar,
-    editar
+    editar,
+    subir,
+    imagen
 }
