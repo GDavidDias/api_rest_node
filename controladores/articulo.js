@@ -289,6 +289,46 @@ const imagen = (req,res)=>{
             })
         }
     })
+};
+
+
+const buscador = async (req, res)=>{
+    //SAcar string de busqueda
+    let busqueda = req.params.busqueda;
+
+    try{
+        //Find a Coleccion con un OR
+        let articulo_enc = await Articulo.find({"$or": [
+            {"titulo": {"$regex": busqueda, "$options": "i"}},
+            {"contenido": {"$regex": busqueda, "$options": "i"}},
+        //Orden
+        ]}).sort({fecha:-1}).exec();
+
+        console.log(articulo_enc);
+
+        if(!articulo_enc || articulo_enc.length <= 0){
+            return res.tatus(404).json({
+                status: "error",
+                mensaje: "articulo no encontrado"
+            })
+        }
+
+        return res.status(200).json({
+            status: "success",
+            articulo_enc
+        })
+
+    }catch(error){
+        return res.status(400).json({
+            status:"error",
+            mensaje: error.message
+        });
+    };
+
+
+    //Ejecutar consulta
+
+    //Devolver resultado
 
 };
 
@@ -302,5 +342,6 @@ module.exports = {
     borrar,
     editar,
     subir,
-    imagen
+    imagen,
+    buscador
 }

@@ -29,6 +29,8 @@ router.put("/articulo/:id", ArticuloController.editar);
 router.post("/subir-imagen/:id", [subidas.single("file0")], ArticuloController.subir);
 router.get("/imagen/:fichero", ArticuloController.imagen);
 
+router.get("/buscar/:busqueda", ArticuloController.buscador);
+
 
 
 
